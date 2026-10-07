@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background-color: #0b0f17;
+  color: #e2e8f0;
+}
+
+* {
+  border-color: #1e293b;
+}
+
+body {
+  font-feature-settings: 'cv05' 1;
+}
+
+[dir='rtl'] body {
+  line-height: 1.5;
+}
+
+.tabular-nums {
+  font-feature-settings: 'tnum' 1, 'cv05' 1;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
