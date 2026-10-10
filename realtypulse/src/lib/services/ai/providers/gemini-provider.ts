@@ -1,9 +1,11 @@
 import 'server-only';
 import type { AgentExecutionInput, AgentExecutionResult, ModelProvider } from '../types';
 
-// Stable (non-preview) Gemini model as of late 2026. If Google deprecates
-// this, swap the string here — nothing else in this file needs to change.
-const MODEL = 'gemini-2.5-flash';
+// Google retires older Gemini models for new accounts fairly often
+// (gemini-2.5-flash already returned a 404 "no longer available" error).
+// Set GEMINI_MODEL in Vercel to switch models without a code change; the
+// default below is what Google's own error message recommended.
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 
 export class GeminiProvider implements ModelProvider {
   isConfigured(): boolean {
