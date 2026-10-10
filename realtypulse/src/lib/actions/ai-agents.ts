@@ -17,8 +17,26 @@ export async function triggerAgentRun(agentKey: string) {
       locale: getLocale(),
     });
     revalidatePath('/ai-agents');
-    return { run };
+
+    // The provider call can fail without throwing (bad key, wrong model,
+    // quota). runAgent records that on the run row — surface it here
+    // instead of reporting a failed run as a success.
+    if (run.status === 'failed') {
+      return { error: run.error ?? 'The AI provider returned an error.' };
+    }
+
+    const output = run.output as { text?: string } | null;
+    return { run, text: output?.text ?? '' };
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Failed to run agent.' };
+    // Supabase errors are plain objects, not Error instances, so the old
+    // `e instanceof Error` check discarded their message entirely.
+    const message =
+      e instanceof Error
+        ? e.message
+        : typeof e === 'object' && e !== null && 'message' in e
+          ? String((e as { message: unknown }).message)
+          : 'Failed to run agent.';
+    console.error('triggerAgentRun failed:', e);
+    return { error: message };
   }
 }
