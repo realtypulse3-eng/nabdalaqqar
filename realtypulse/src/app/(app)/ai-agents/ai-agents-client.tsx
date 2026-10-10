@@ -22,15 +22,20 @@ export function AiAgentsClient({ initialAgents, aiConfigured }: { initialAgents:
   const [agents, setAgents] = useState(initialAgents);
   const [runningKey, setRunningKey] = useState<string | null>(null);
   const [lastError, setLastError] = useState<Record<string, string>>({});
+  const [lastOutput, setLastOutput] = useState<Record<string, string>>({});
 
   async function handleRun(agent: AiAgent) {
     setRunningKey(agent.key);
     setLastError((prev) => ({ ...prev, [agent.key]: '' }));
+    setLastOutput((prev) => ({ ...prev, [agent.key]: '' }));
     const result = await triggerAgentRun(agent.key);
     if ('error' in result && result.error) {
       setLastError((prev) => ({ ...prev, [agent.key]: result.error! }));
       setAgents((prev) => prev.map((a) => (a.key === agent.key ? { ...a, status: 'error' } : a)));
     } else {
+      if ('text' in result && result.text) {
+        setLastOutput((prev) => ({ ...prev, [agent.key]: result.text! }));
+      }
       setAgents((prev) => prev.map((a) => (a.key === agent.key ? { ...a, status: 'idle' } : a)));
     }
     setRunningKey(null);
@@ -76,6 +81,15 @@ export function AiAgentsClient({ initialAgents, aiConfigured }: { initialAgents:
             )}
 
             {lastError[agent.key] && <p className="text-xs text-danger">{lastError[agent.key]}</p>}
+
+            {lastOutput[agent.key] && (
+              <div
+                dir="auto"
+                className="max-h-60 overflow-y-auto whitespace-pre-wrap rounded-control border border-white/[0.06] bg-surface-2 p-3 text-xs leading-relaxed text-ink"
+              >
+                {lastOutput[agent.key]}
+              </div>
+            )}
 
             <div className="mt-auto pt-2">
               <Button
